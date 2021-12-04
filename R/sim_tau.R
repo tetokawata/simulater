@@ -72,7 +72,7 @@ sim_tau <- function(nunber_sample,
   }
   est_MCP_LASSO <- function(X,D,Y){
     x <- bind_cols(D = D,X) |> as.matrix()
-    fit <- cv.ncvreg(x = x,
+    fit <- cv.ncvreg(X = x,
                     y = Y)
     coef(fit)[2]
   }
