@@ -32,12 +32,14 @@ sim_tau <- function(nunber_sample,
                       wrong_simple = FALSE,
                       over_parameter = FALSE,
                     adaptive_LASSO = FALSE,
+                    MCP_LASSO = FALSE,
                       core = 1){
   require(tidyverse)
   require(gamlr)
   require(furrr)
   require(glmnet)
   require(ranger)
+  require(ncvreg)
   # Parameter ----
   N <- nunber_sample
   L <- number_covariate
@@ -66,6 +68,12 @@ sim_tau <- function(nunber_sample,
                   y = Y,
                   penalty.factor = 1/weights,
                   lambda = cv$lambda.min)
+    coef(fit)[2]
+  }
+  est_MCP_LASSO <- function(X,D,Y){
+    x <- bind_cols(D = D,X) |> as.matrix()
+    fit <- cv.ncvreg(x = x,
+                    y = Y)
     coef(fit)[2]
   }
   est_RL_forest <- function(X,D,Y){
@@ -130,7 +138,8 @@ sim_tau <- function(nunber_sample,
                    if (unpenalty_LASSO) {est_unpenalty_LASSO(X,D,Y)} else{NA},
                    if (RL) {est_RL(X,D,Y)} else{NA},
                    if (RL_forest) {est_RL_forest(X,D,Y)} else{NA},
-                   if (adaptive_LASSO) {est_adaptive_LASSO(X,D,Y)} else{NA}
+                   if (adaptive_LASSO) {est_adaptive_LASSO(X,D,Y)} else{NA},
+                   if (MCP_LASSO) {est_MCP_LASSO(X,D,Y)} else{NA}
                    ),
            sample = c(N,N,N,N,N,N,N,N),
            method = c("correct parametric",
@@ -140,7 +149,8 @@ sim_tau <- function(nunber_sample,
                       "LASSO without penalty",
                       "R_learner",
                       "R_learner with Forest",
-                      "Adaptive LASSO")
+                      "Adaptive LASSO",
+                      "MCP LASSO")
            )
   }
   # Repeat----

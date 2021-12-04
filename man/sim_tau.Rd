@@ -16,6 +16,7 @@ sim_tau(
   wrong_simple = FALSE,
   over_parameter = FALSE,
   adaptive_LASSO = FALSE,
+  MCP_LASSO = FALSE,
   core = 1
 )
 }
