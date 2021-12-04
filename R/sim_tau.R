@@ -141,7 +141,7 @@ sim_tau <- function(nunber_sample,
                    if (adaptive_LASSO) {est_adaptive_LASSO(X,D,Y)} else{NA},
                    if (MCP_LASSO) {est_MCP_LASSO(X,D,Y)} else{NA}
                    ),
-           sample = c(N,N,N,N,N,N,N,N),
+           sample = c(N,N,N,N,N,N,N,N,N),
            method = c("correct parametric",
                       "over-parameteric",
                       "almost-correct parametric",
