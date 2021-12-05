@@ -21,43 +21,43 @@
 
 
 sim_tau <- function(nunber_sample,
-                      number_covariate,
-                      number_interation,
-                      oracle = FALSE,
-                      LASSO = FALSE,
-                      RL_forest= FALSE,
-                      RL = FALSE,
-                      unpenalty_LASSO = FALSE,
-                      wrong_simple = FALSE,
-                      over_parameter = FALSE,
+                    number_covariate,
+                    number_interation,
+                    oracle = FALSE,
+                    LASSO = FALSE,
+                    RL_forest= FALSE,
+                    RL = FALSE,
+                    unpenalty_LASSO = FALSE,
+                    wrong_simple = FALSE,
+                    over_parameter = FALSE,
                     adaptive_LASSO = FALSE,
                     MCP_LASSO = FALSE,
-                      core = 1){
-  require(tidyverse)
+                    core = 1){
   require(gamlr)
   require(furrr)
   require(glmnet)
   require(ranger)
   require(ncvreg)
+  require(magrittr)
   # Parameter ----
   N <- nunber_sample
   L <- number_covariate
   b <- number_interation
   # Individual estimater ----
-    est_oracle <- function(X,D,Y){
+  est_oracle <- function(X,D,Y){
     x <- X$var1_square
     lm(Y ~ 0 + D + x) |>
       coef() %>%
       .[1]
-    }
+  }
   est_LASSO <- function(X,D,Y){
-    x <- bind_cols(D = D,X) |> as.matrix()
+    x <- dplyr::bind_cols(D = D,X) |> as.matrix()
     fit <- gamlr(x = x,
                  y = Y)
     coef(fit)[2]
   }
   est_adaptive_LASSO <- function(X,D,Y){
-    x <- bind_cols(D = D,X) |> as.matrix()
+    x <- dplyr::bind_cols(D = D,X) |> as.matrix()
     temp <- lm(Y ~ x) |> coef()
     weights <- 1/abs(temp[-1])
     cv <- cv.glmnet(x = x,
@@ -70,9 +70,9 @@ sim_tau <- function(nunber_sample,
     coef(fit)[2]
   }
   est_MCP_LASSO <- function(X,D,Y){
-    x <- bind_cols(D = D,X) |> as.matrix()
+    x <- dplyr::bind_cols(D = D,X) |> as.matrix()
     fit <- cv.ncvreg(X = x,
-                    y = Y)
+                     y = Y)
     coef(fit)[2]
   }
   est_RL_forest <- function(X,D,Y){
@@ -96,7 +96,7 @@ sim_tau <- function(nunber_sample,
     coef(fit)
   }
   est_unpenalty_LASSO <- function(X,D,Y){
-    x <- bind_cols(D = D,X) |> as.matrix()
+    x <- dplyr::bind_cols(D = D,X) |> as.matrix()
     fit <- gamlr(x = x,
                  y = Y,
                  free = "D")
@@ -119,38 +119,38 @@ sim_tau <- function(nunber_sample,
     X <-
       matrix(runif(N*L,-5,5), N, L) |>
       as.data.frame()
-    colnames(X) <- str_c("var",1:L)
+    colnames(X) <- stringr::str_c("var",1:L)
     X2 <- X^2
-    colnames(X2) <- str_c(colnames(X),"_square")
+    colnames(X2) <- stringr::str_c(colnames(X),"_square")
     df <-
       X |>
-      bind_cols(X2) |>
-      mutate(D = -5*var1_square + rnorm(N,0,10),
-             Y = 5*D + 25*var1_square + rnorm(N,0,100))
+      dplyr::bind_cols(X2) |>
+      dplyr::mutate(D = -5*var1_square + rnorm(N,0,10),
+                    Y = 5*D + 25*var1_square + rnorm(N,0,100))
     Y <- df$Y
     D <- df$D
-    X <- select(df,-Y,-D)
-    tibble(est = c(if (oracle) {est_oracle(X,D,Y)} else {NA},
-                   if (over_parameter) {est_over_parameter(X,D,Y)} else{NA},
-                   if (wrong_simple) {est_wrong_simple(X,D,Y)} else{NA},
-                   if (LASSO) {est_LASSO(X,D,Y)} else{NA},
-                   if (unpenalty_LASSO) {est_unpenalty_LASSO(X,D,Y)} else{NA},
-                   if (RL) {est_RL(X,D,Y)} else{NA},
-                   if (RL_forest) {est_RL_forest(X,D,Y)} else{NA},
-                   if (adaptive_LASSO) {est_adaptive_LASSO(X,D,Y)} else{NA},
-                   if (MCP_LASSO) {est_MCP_LASSO(X,D,Y)} else{NA}
-                   ),
-           sample = c(N,N,N,N,N,N,N,N,N),
-           method = c("correct parametric",
-                      "over-parameteric",
-                      "almost-correct parametric",
-                      "LASSO",
-                      "LASSO without penalty",
-                      "R_learner",
-                      "R_learner with Forest",
-                      "Adaptive LASSO",
-                      "MCP LASSO")
-           )
+    X <- dplyr::select(df,-Y,-D)
+    tibble::tibble(est = c(if (oracle) {est_oracle(X,D,Y)} else {NA},
+                           if (over_parameter) {est_over_parameter(X,D,Y)} else{NA},
+                           if (wrong_simple) {est_wrong_simple(X,D,Y)} else{NA},
+                           if (LASSO) {est_LASSO(X,D,Y)} else{NA},
+                           if (unpenalty_LASSO) {est_unpenalty_LASSO(X,D,Y)} else{NA},
+                           if (RL) {est_RL(X,D,Y)} else{NA},
+                           if (RL_forest) {est_RL_forest(X,D,Y)} else{NA},
+                           if (adaptive_LASSO) {est_adaptive_LASSO(X,D,Y)} else{NA},
+                           if (MCP_LASSO) {est_MCP_LASSO(X,D,Y)} else{NA}
+    ),
+    sample = c(N,N,N,N,N,N,N,N,N),
+    method = c("correct parametric",
+               "over-parameteric",
+               "almost-correct parametric",
+               "LASSO",
+               "LASSO without penalty",
+               "R_learner",
+               "R_learner with Forest",
+               "Adaptive LASSO",
+               "MCP LASSO")
+    )
   }
   # Repeat----
   plan(multisession, workers = core)
