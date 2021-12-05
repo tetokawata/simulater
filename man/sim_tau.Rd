@@ -34,8 +34,7 @@ A dataframe containing follows:
 \item{method}{ Prediction method.}
 }
 \description{
-\code{sim_tau} is used to simulate estimated targeting
-parameter with sparse linear data given N.
+\code{sim_tau} is used to simulate estimated targeting parameter with sparse linear data given N.
 }
 \examples{
 sim <- sim_fix_n(number_sample = 100; number_covariate = 10; core = 1)

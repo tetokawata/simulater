@@ -1,7 +1,6 @@
 #' @title Simulated targeting estimation with sparse data.
 #'
-#' @description \code{sim_tau} is used to simulate estimated targeting
-#' parameter with sparse linear data given N.
+#' @description \code{sim_tau} is used to simulate estimated targeting parameter with sparse linear data given N.
 #'
 #' @param nunber_sample number of sample in simulated data.
 #' @param number_covariate number of covariates.
